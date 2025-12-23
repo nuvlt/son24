@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>son24saat - Burası arşiv değil, an.</title>
+    <meta name="description" content="Geçici sosyal duvar. İçerikler 24 saat içinde silinir.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: #141414;
+            --border: #262626;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .space-name {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            background: var(--card);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Composer */
+        .composer {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .composer textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            min-height: 80px;
+        }
+
+        .composer textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .composer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .char-count.warning {
+            color: var(--warning);
+        }
+
+        .char-count.danger {
+            color: var(--danger);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Posts */
+        .posts {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .post {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .post:hover {
+            border-color: #404040;
+        }
+
+        .post.grayed {
+            opacity: 0.5;
+        }
+
+        .post.own {
+            border-left: 3px solid var(--accent);
+        }
+
+        .post-content {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .time-remaining {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .time-remaining.urgent {
+            color: var(--warning);
+        }
+
+        /* Reactions */
+        .reactions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .reaction-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .reaction-btn:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .reaction-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .reaction-btn.crossing-line:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Reply Section */
+        .replies-section {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .reply {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .reply.own {
+            border-left: 2px solid var(--accent);
+        }
+
+        .reply-input-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .reply-input {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            color: var(--text);
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .reply-input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Loading & Empty States */
+        .loading, .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.error {
+            border-color: var(--danger);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(1rem);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Landing Page */
+        .landing {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+
+        .landing h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .landing .tagline {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .landing .features {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .feature {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .feature h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .reactions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">son24<span>saat</span></a>
+            <div class="space-name" id="spaceName">Yükleniyor...</div>
+        </div>
+    </header>
+
+    <main class="container" id="app">
+        <!-- Content loaded by JS -->
+    </main>
+
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+        // son24saat Frontend
+        const API_BASE = '/api';
+        const MAX_CHARS = 1000;
+        
+        // State
+        let currentSpace = null;
+        let posts = [];
+        let userReactions = {};
+
+        // Utilities
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            $('#toasts').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function formatTimeRemaining(expiresAt) {
+            const now = new Date();
+            const expires = new Date(expiresAt);
+            const diffMs = expires - now;
+            
+            if (diffMs <= 0) return { text: 'Süresi doldu', urgent: true };
+            
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours > 0) {
+                return { text: `${hours}s ${minutes}d`, urgent: hours < 1 };
+            }
+            return { text: `${minutes}d`, urgent: true };
+        }
+
+        function formatRelativeTime(date) {
+            const now = new Date();
+            const diff = now - new Date(date);
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            
+            if (minutes < 1) return 'şimdi';
+            if (minutes < 60) return `${minutes}d önce`;
+            if (hours < 24) return `${hours}s önce`;
+            return new Date(date).toLocaleDateString('tr-TR');
+        }
+
+        // API Calls
+        async function api(endpoint, options = {}) {
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers,
+                },
+            });
+            
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.message || 'Bir hata oluştu');
+            }
+            
+            return data;
+        }
+
+        async function loadSpace() {
+            try {
+                const data = await api('/space');
+                currentSpace = data.space;
+                $('#spaceName').textContent = currentSpace.displayName;
+                document.title = `${currentSpace.displayName} - son24saat`;
+                return true;
+            } catch (err) {
+                // No space = main site
+                return false;
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                const data = await api('/posts');
+                posts = data.posts;
+                renderPosts();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function createPost(content) {
+            try {
+                const data = await api('/posts', {
+                    method: 'POST',
+                    body: JSON.stringify({ content }),
+                });
+                posts.unshift(data.post);
+                renderPosts();
+                showToast('Paylaşıldı!', 'success');
+                return true;
+            } catch (err) {
+                showToast(err.message, 'error');
+                return false;
+            }
+        }
+
+        async function addReaction(postId, type) {
+            try {
+                const data = await api(`/posts/${postId}/reactions`, {
+                    method: 'POST',
+                    body: JSON.stringify({ type }),
+                });
+                
+                // Update local state
+                const post = posts.find(p => p.id === postId);
+                if (post) {
+                    post.userReaction = data.action === 'removed' ? null : type;
+                }
+                renderPosts();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function flagPost(postId, reason) {
+            try {
+                await api(`/posts/${postId}/flags`, {
+                    method: 'POST',
+                    body: JSON.stringify({ reason }),
+                });
+                showToast('Bildirildi. Teşekkürler.', 'success');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function addReply(postId, content) {
+            try {
+                await api(`/posts/${postId}/replies`, {
+                    method: 'POST',
+                    body: JSON.stringify({ content }),
+                });
+                showToast('Yanıt eklendi', 'success');
+                loadPosts(); // Reload to get new reply
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // Render Functions
+        function renderLanding() {
+            $('#app').innerHTML = `
+                <div class="landing">
+                    <h1>⏱️ son24saat</h1>
+                    <p class="tagline">Burası arşiv değil, an.</p>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <h3>🔒 Anonim</h3>
+                            <p>Hesap yok, profil yok, takip yok. Sadece an.</p>
+                        </div>
+                        <div class="feature">
+                            <h3>⏰ Geçici</h3>
+                            <p>Tüm içerikler 24 saat içinde otomatik silinir.</p>
+                        </div>
+                        <div class="feature">
+                            <h3>📊 Algoritmasız</h3>
+                            <p>Kronolojik sıralama. Manipülasyon yok.</p>
+                        </div>
+                        <div class="feature">
+                            <h3>🏘️ Topluluklar</h3>
+                            <p>Her subdomain kendi alanı. şirket.son24saat.com gibi.</p>
+                        </div>
+                    </div>
+                    
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">
+                        Bir alana gitmek için: <code>alanadi.son24saat.com</code>
+                    </p>
+                </div>
+            `;
+            $('#spaceName').textContent = 'Ana Sayfa';
+        }
+
+        function renderComposer() {
+            return `
+                <div class="composer">
+                    <textarea 
+                        id="postInput" 
+                        placeholder="Ne düşünüyorsun? (24 saat sonra silinecek)"
+                        maxlength="${MAX_CHARS}"
+                    ></textarea>
+                    <div class="composer-footer">
+                        <span class="char-count" id="charCount">0/${MAX_CHARS}</span>
+                        <button class="btn" id="postBtn" disabled>Paylaş</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPost(post) {
+            const time = formatTimeRemaining(post.expiresAt);
+            const reactions = [
+                { type: 'agree', emoji: '👍', label: 'Katılıyorum' },
+                { type: 'not_alone', emoji: '🤝', label: 'Yalnız değilsin' },
+                { type: 'exaggerated', emoji: '🤔', label: 'Abartı' },
+                { type: 'crossing_line', emoji: '🚫', label: 'Sınırı aşıyor' },
+            ];
+
+            return `
+                <article class="post ${post.isGrayed ? 'grayed' : ''} ${post.isOwn ? 'own' : ''}" data-id="${post.id}">
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    <div class="post-meta">
+                        <span>${formatRelativeTime(post.createdAt)}</span>
+                        <span class="time-remaining ${time.urgent ? 'urgent' : ''}">
+                            ⏱️ ${time.text}
+                        </span>
+                    </div>
+                    <div class="reactions">
+                        ${reactions.map(r => `
+                            <button 
+                                class="reaction-btn ${r.type === 'crossing_line' ? 'crossing-line' : ''} ${post.userReaction === r.type ? 'active' : ''}"
+                                data-post="${post.id}"
+                                data-type="${r.type}"
+                                title="${r.label}"
+                            >
+                                ${r.emoji}
+                            </button>
+                        `).join('')}
+                    </div>
+                    ${post.replyCount > 0 ? `
+                        <div class="replies-section">
+                            <small style="color: var(--text-muted)">${post.replyCount} yanıt</small>
+                        </div>
+                    ` : ''}
+                </article>
+            `;
+        }
+
+        function renderPosts() {
+            const postsHtml = posts.length > 0 
+                ? posts.map(renderPost).join('')
+                : '<div class="empty">Henüz içerik yok. İlk sen paylaş!</div>';
+
+            $('#app').innerHTML = `
+                ${renderComposer()}
+                <div class="posts">${postsHtml}</div>
+            `;
+
+            // Setup composer events
+            const input = $('#postInput');
+            const btn = $('#postBtn');
+            const charCount = $('#charCount');
+
+            input.addEventListener('input', () => {
+                const len = input.value.length;
+                charCount.textContent = `${len}/${MAX_CHARS}`;
+                charCount.className = 'char-count' + 
+                    (len > MAX_CHARS * 0.9 ? ' danger' : len > MAX_CHARS * 0.7 ? ' warning' : '');
+                btn.disabled = len === 0 || len > MAX_CHARS;
+            });
+
+            btn.addEventListener('click', async () => {
+                const content = input.value.trim();
+                if (content && await createPost(content)) {
+                    input.value = '';
+                    charCount.textContent = `0/${MAX_CHARS}`;
+                    btn.disabled = true;
+                }
+            });
+
+            // Enter to submit (with shift for newline)
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+
+            // Setup reaction events
+            $$('.reaction-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    addReaction(btn.dataset.post, btn.dataset.type);
+                });
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        async function init() {
+            $('#app').innerHTML = '<div class="loading"><div class="loading-spinner"></div>Yükleniyor...</div>';
+            
+            const hasSpace = await loadSpace();
+            
+            if (hasSpace) {
+                await loadPosts();
+                // Auto-refresh every 30 seconds
+                setInterval(loadPosts, 30000);
+            } else {
+                renderLanding();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
