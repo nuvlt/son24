@@ -412,6 +412,10 @@
         const API_BASE = '/api';
         const MAX_CHARS = 1000;
         
+        // Get space from URL query param
+        const urlParams = new URLSearchParams(window.location.search);
+        const spaceParam = urlParams.get('space');
+        
         // State
         let currentSpace = null;
         let posts = [];
@@ -420,6 +424,15 @@
         // Utilities
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => document.querySelectorAll(sel);
+        
+        // Add space param to API calls
+        function apiUrl(endpoint) {
+            if (spaceParam) {
+                const separator = endpoint.includes('?') ? '&' : '?';
+                return `${API_BASE}${endpoint}${separator}space=${spaceParam}`;
+            }
+            return `${API_BASE}${endpoint}`;
+        }
 
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
@@ -459,7 +472,8 @@
 
         // API Calls
         async function api(endpoint, options = {}) {
-            const res = await fetch(`${API_BASE}${endpoint}`, {
+            const url = apiUrl(endpoint);
+            const res = await fetch(url, {
                 ...options,
                 headers: {
                     'Content-Type': 'application/json',
@@ -584,7 +598,19 @@
                         </div>
                     </div>
                     
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">
+                    <!-- Test Mode -->
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 1rem;">
+                        <h3 style="margin-bottom: 0.75rem; font-size: 1rem;">🧪 Test Modu</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                            Domain olmadan test etmek için bir alan seç:
+                        </p>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <a href="?space=genel" class="btn" style="text-decoration: none;">Genel</a>
+                            <a href="?space=test" class="btn" style="text-decoration: none; background: #374151;">Test</a>
+                        </div>
+                    </div>
+                    
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 2rem;">
                         Bir alana gitmek için: <code>alanadi.son24saat.com</code>
                     </p>
                 </div>
@@ -705,12 +731,23 @@
         async function init() {
             $('#app').innerHTML = '<div class="loading"><div class="loading-spinner"></div>Yükleniyor...</div>';
             
-            const hasSpace = await loadSpace();
-            
-            if (hasSpace) {
-                await loadPosts();
-                // Auto-refresh every 30 seconds
-                setInterval(loadPosts, 30000);
+            // If we have space param, try to load that space
+            if (spaceParam) {
+                const hasSpace = await loadSpace();
+                if (hasSpace) {
+                    await loadPosts();
+                    setInterval(loadPosts, 30000);
+                } else {
+                    // Space not found
+                    $('#app').innerHTML = `
+                        <div class="empty">
+                            <h2>Alan bulunamadı</h2>
+                            <p>"${spaceParam}" adında bir alan yok.</p>
+                            <a href="/" class="btn" style="margin-top: 1rem; display: inline-block; text-decoration: none;">Ana Sayfaya Dön</a>
+                        </div>
+                    `;
+                    $('#spaceName').textContent = 'Hata';
+                }
             } else {
                 renderLanding();
             }

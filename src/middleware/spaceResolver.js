@@ -43,6 +43,8 @@ const extractSubdomain = (host) => {
 /**
  * Space resolver middleware
  * Attaches req.space if valid subdomain found
+ * 
+ * Test mode: Use ?space=slug to bypass subdomain requirement
  */
 const spaceResolver = async (req, res, next) => {
     try {
@@ -52,6 +54,11 @@ const spaceResolver = async (req, res, next) => {
         // Development: check X-Space-Slug header
         if (subdomain === null && req.get('X-Space-Slug')) {
             subdomain = req.get('X-Space-Slug');
+        }
+        
+        // TEST MODE: check ?space= query parameter
+        if (subdomain === null && req.query.space) {
+            subdomain = req.query.space;
         }
         
         // No subdomain = main site (landing page, etc.)
