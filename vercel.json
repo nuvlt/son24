@@ -28,10 +28,10 @@
       "dest": "/api/index.js"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/cron/cleanup",
-      "schedule": "*/5 * * * *"
-    }
-  ]
+"crons": [
+  {
+    "path": "/api/cron/cleanup",
+    "schedule": "0 0 * * *"
+  }
+]
 }
