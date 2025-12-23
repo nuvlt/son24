@@ -62,6 +62,14 @@ app.use(spaceResolver);
 // Device identification (soft identity)
 app.use(deviceIdentifier);
 
+// Lazy TTL cleanup (runs every 5 min on any request)
+const ttlCleanup = require('./services/ttlCleanup');
+app.use(async (req, res, next) => {
+    // Fire and forget - don't block the request
+    ttlCleanup.lazyCleanup().catch(() => {});
+    next();
+});
+
 // API routes
 app.use('/api', routes);
 
