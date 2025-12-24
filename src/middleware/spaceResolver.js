@@ -15,6 +15,10 @@ const config = require('../config');
 const extractSubdomain = (host) => {
     // Remove port if present
     const hostWithoutPort = host.split(':')[0];
+
+    if (hostWithoutPort.endsWith('.vercel.app') || hostWithoutPort.endsWith('.vercel.sh')) {
+    return null;
+}
     
     // Development mode: use header
     if (hostWithoutPort === 'localhost' || hostWithoutPort === '127.0.0.1') {
