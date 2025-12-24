@@ -4,25 +4,27 @@
 const express = require('express');
 const router = express.Router();
 const { Space } = require('../models');
-const { requireSpace } = require('../middleware/spaceResolver');
-const ttlCleanup = require('../services/ttlCleanup');
 
 /**
  * GET /api/space
  * Get current space info
  */
-router.get('/', requireSpace, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
     try {
+        // Space middleware'den geliyor
+        if (!req.space) {
+            return res.status(400).json({
+                error: 'Space required',
+                message: 'Bir alan belirtmelisiniz. ?space=slug kullanın.',
+            });
+        }
+        
         const postCount = await req.space.getActivePostCount();
-        const expirationStats = await ttlCleanup.getSpaceExpirationStats(req.space.id);
 
         res.json({
             space: req.space.toPublic(),
             stats: {
                 activePosts: postCount,
-                expiring1h: parseInt(expirationStats.expiring_1h),
-                expiring6h: parseInt(expirationStats.expiring_6h),
-                expiring24h: parseInt(expirationStats.expiring_24h),
             },
         });
     } catch (error) {

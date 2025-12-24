@@ -75,4 +75,21 @@ router.get('/config', (req, res) => {
     });
 });
 
+/**
+ * GET /api/debug/spaces
+ * List all spaces (for debugging)
+ */
+router.get('/debug/spaces', async (req, res) => {
+    try {
+        const { query } = require('../config/database');
+        const result = await query('SELECT id, slug, display_name, ttl_hours, is_active FROM spaces');
+        res.json({ 
+            count: result.rows.length,
+            spaces: result.rows 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
