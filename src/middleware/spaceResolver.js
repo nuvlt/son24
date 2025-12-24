@@ -10,19 +10,21 @@ const config = require('../config');
  *   kadikoy.son24saat.com -> kadikoy
  *   abcsirketi.son24saat.com -> abcsirketi
  *   son24saat.com -> null (main site)
- *   localhost:3000 -> uses X-Space-Slug header for dev
+ *   localhost:3000 -> null (dev)
+ *   *.vercel.app -> null (Vercel preview)
  */
 const extractSubdomain = (host) => {
     // Remove port if present
     const hostWithoutPort = host.split(':')[0];
-
-    if (hostWithoutPort.endsWith('.vercel.app') || hostWithoutPort.endsWith('.vercel.sh')) {
-    return null;
-}
     
-    // Development mode: use header
+    // Development mode
     if (hostWithoutPort === 'localhost' || hostWithoutPort === '127.0.0.1') {
-        return null; // Will check header in middleware
+        return null;
+    }
+    
+    // Vercel preview/production domains - treat as main site
+    if (hostWithoutPort.endsWith('.vercel.app') || hostWithoutPort.endsWith('.vercel.sh')) {
+        return null;
     }
     
     const baseDomain = config.domain.base;
@@ -40,8 +42,12 @@ const extractSubdomain = (host) => {
         return match[1];
     }
     
-    // Check for custom domain
-    return { customDomain: hostWithoutPort };
+    // Check for custom domain (not vercel, not base domain)
+    if (!hostWithoutPort.includes('vercel')) {
+        return { customDomain: hostWithoutPort };
+    }
+    
+    return null;
 };
 
 /**

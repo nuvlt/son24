@@ -139,7 +139,12 @@ router.post('/', requireSpace, requireDevice, canPost, async (req, res, next) =>
             message: 'İçerik paylaşıldı.',
         });
     } catch (error) {
-        next(error);
+        console.error('Post creation error:', error);
+        res.status(500).json({
+            error: 'Post creation failed',
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 

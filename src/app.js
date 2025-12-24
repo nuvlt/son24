@@ -23,15 +23,25 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
 
-// CORS - allow all subdomains
+// CORS - allow all subdomains and Vercel
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, curl, etc.)
         if (!origin) return callback(null, true);
         
+        // Allow Vercel preview and production domains
+        if (origin.includes('vercel.app') || origin.includes('vercel.sh')) {
+            return callback(null, true);
+        }
+        
         // Allow all subdomains of son24saat.com
         const allowedPattern = /^https?:\/\/([a-z0-9-]+\.)?son24saat\.com$/;
-        if (allowedPattern.test(origin) || config.nodeEnv === 'development') {
+        if (allowedPattern.test(origin)) {
+            return callback(null, true);
+        }
+        
+        // Allow localhost for development
+        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
             return callback(null, true);
         }
         
